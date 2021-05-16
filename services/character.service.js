@@ -17,17 +17,54 @@ class MarvelService {
         return characters;
       }
 
-      logger.info('request from Marvel', context);
+      logger.info('requesting from Marvel API', context);
       const data = await marvelClient.getAllCharacters();
-      const list = data.map((element) => element.id);
+      const list = data.map((element) => {
+        this._storeElementInCache(element);
+        return element.id;
+      });
 
-      logger.info('storing in cache', context);
       cache.set('characters', list);
       return list;
     } catch (error) {
       logger.log(error, context);
       throw new Error('Internal server error');
     }
+  }
+
+  async getCharacterById({ id }) {
+    const context = {
+      fileName: __filename,
+      operationName: 'MarvelService.getCharacterById',
+    };
+
+    try {
+      const character = cache.get(id);
+
+      if (character) {
+        logger.info('retrieving single character from cache', context);
+        return character;
+      }
+
+      logger.info('requesting from Marvel API', context);
+      const data = await marvelClient.getAllCharacters();
+      const list = data.map((element) => {
+        this._storeElementInCache(element);
+        return element.id;
+      });
+
+      cache.set('characters', list);
+
+      return cache.get(id);
+    } catch (error) {
+      logger.log(error, context);
+      throw new Error('Internal server error');
+    }
+  }
+
+  _storeElementInCache(element) {
+    const { id, name, description } = element;
+    cache.set(`${id}`, { id, name, description });
   }
 }
 

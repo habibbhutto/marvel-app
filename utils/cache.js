@@ -3,7 +3,7 @@ const LRU = require('lru-cache');
 const fifteenMinutes = 1000 * 60 * 15;
 
 const cache = new LRU({
-  max: 1,
+  max: 4000,
   length: function () {
     return 1;
   },

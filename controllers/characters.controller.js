@@ -19,6 +19,24 @@ class CharacterController {
       res.status(500).json({ message: error.message }).end();
     }
   }
+
+  async getCharacterById(req, res) {
+    const context = {
+      fileName: __filename,
+      operationName: 'CharacterController.getCharacterById',
+    };
+
+    try {
+      logger.info('request received', context);
+      const character = await marvelService.getCharacterById(req.params);
+      res.json(character);
+      res.end();
+      logger.info('response sent', context);
+    } catch (error) {
+      logger.error(error, context);
+      res.status(500).json({ message: error.message }).end();
+    }
+  }
 }
 
 module.exports = new CharacterController();

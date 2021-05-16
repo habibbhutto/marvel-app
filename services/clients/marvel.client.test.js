@@ -2,6 +2,8 @@ const marvelClient = require('./marvel.client');
 const mockData = require('./test-data.json');
 const nock = require('nock');
 
+jest.mock('../../utils/logger');
+
 describe('MarvelClient', () => {
   const MARVEL_API_URL = 'https://gateway.dummymarvel.com/v1/public';
   process.env.MARVEL_API_URL = MARVEL_API_URL;

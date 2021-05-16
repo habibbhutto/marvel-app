@@ -48,8 +48,13 @@ class MarvelClient {
           logger.info(`retrying request, retries: ${retries}`, context);
           continue;
         }
-        const msg = await error.json();
-        const err = new Error(`statusCode: ${error.statusCode}, ${JSON.stringify(msg)}`);
+        let message;
+        if (error.json) {
+          message = await error.json();
+        } else {
+          message = error.message;
+        }
+        const err = new Error(`statusCode: ${error.statusCode}, ${JSON.stringify(message)}`);
         logger.error(err, context);
         throw err;
       }
