@@ -2,9 +2,14 @@ const crypto = require('crypto');
 const qstring = require('querystring');
 const bent = require('bent');
 const config = require('../../config');
+const logger = require('../../utils/logger');
 
 class MarvelClient {
   async _get({ path, offset, limit = 100 }) {
+    const context = {
+      fileName: __filename,
+      operationName: 'MarvelClient._get',
+    };
     const RETRIABLE_ERRORS = [408, 429, 500, 502, 503, 504, 508];
     const maxRetries = 10;
     let retries = 1;
@@ -29,19 +34,24 @@ class MarvelClient {
           hash,
         };
 
+        logger.info('request sent', context);
         let stream = await getStream(`${path}?${qstring.stringify(params)}`);
 
         const resp = await stream.json();
+        logger.info('response received', context);
         return resp;
       } catch (error) {
         if (retries < maxRetries && RETRIABLE_ERRORS.includes(error.statusCode)) {
           const backOff = Math.pow(2, retries) * 100;
           await this._sleep(backOff);
           retries++;
+          logger.info(`retrying request, retries: ${retries}`, context);
           continue;
         }
         const msg = await error.json();
-        throw new Error(`statusCode: ${error.statusCode}, ${JSON.stringify(msg)}`);
+        const err = new Error(`statusCode: ${error.statusCode}, ${JSON.stringify(msg)}`);
+        logger.error(err, context);
+        throw err;
       }
     }
   }
@@ -53,10 +63,15 @@ class MarvelClient {
   }
 
   async getAllCharacters() {
+    const context = {
+      fileName: __filename,
+      operationName: 'MarvelClient.getAllCharacters',
+    };
     let characters = [];
     let count = 0;
     let total = 0;
 
+    logger.info('retrieving all the characters', context);
     do {
       const result = await this._get({
         path: '/characters',
@@ -67,6 +82,9 @@ class MarvelClient {
       count += result.data.count;
       total = result.data.total;
     } while (count < total);
+
+    logger.info('retrieved successfully', context);
+
     return characters;
   }
 }
