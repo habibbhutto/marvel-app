@@ -39,6 +39,11 @@ class MarvelService {
     };
 
     try {
+      if (cache.keys().length > 1 && !cache.has(id)) {
+        logger.info('Character with given Id Not found', context);
+        return null;
+      }
+
       const character = cache.get(id);
 
       if (character) {

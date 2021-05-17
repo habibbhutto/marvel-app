@@ -67,6 +67,8 @@ describe('MarvelService', () => {
     it('retrieves characters from Marvel API when cache is empty', async () => {
       /* arrange */
       const dummyCharacter = { id: 'dummyId', name: 'dummyName', description: 'dummy description' };
+      cache.keys = jest.fn(() => []);
+      cache.has = jest.fn(() => false);
       cache.get = jest.fn(() => null);
       cache.set = jest.fn();
       marvelClient.getAllCharacters = jest.fn(() => {
@@ -87,6 +89,8 @@ describe('MarvelService', () => {
     it('retrieves from cache on subsequent calls', async () => {
       /* arrange */
       const dummyCharacter = { id: 'dummyId', name: 'dummyName', description: 'dummy description' };
+      cache.keys = jest.fn(() => [1, 2]);
+      cache.has = jest.fn(() => true);
       cache.get = jest.fn(() => dummyCharacter);
       cache.set = jest.fn();
       marvelClient.getAllCharacters = jest.fn();
@@ -101,6 +105,23 @@ describe('MarvelService', () => {
       expect(cache.get).toHaveBeenCalledTimes(1);
       expect(cache.set).not.toHaveBeenCalled();
     });
+
+    it('returns null if the character not found', async () => {
+      /* arrange */
+      cache.keys = jest.fn(() => [1, 2]);
+      cache.has = jest.fn(() => false);
+      marvelClient.getAllCharacters = jest.fn();
+
+      /* act */
+      const character = await marvelService.getCharacterById({ id: 'dummyId' });
+
+      /* assert */
+      expect(character).toBeNull();
+      expect(marvelClient.getAllCharacters).not.toHaveBeenCalled();
+      expect(cache.keys).toHaveBeenCalledTimes(1);
+      expect(cache.has).toHaveBeenCalledTimes(1);
+    });
+
     it('throws 500 when receives error', async () => {
       /* arrange */
       cache.get = jest.fn(() => null);

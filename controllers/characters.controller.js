@@ -29,6 +29,11 @@ class CharacterController {
     try {
       logger.info('request received', context);
       const character = await marvelService.getCharacterById(req.params);
+      if (!character) {
+        res.status(404).json({ message: 'Not found' }).end();
+        logger.info('response sent', context);
+        return;
+      }
       res.json(character);
       res.end();
       logger.info('response sent', context);
