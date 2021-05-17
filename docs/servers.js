@@ -1,9 +1,11 @@
-// const config = require('../config');
+const config = require('../config');
+const HOST = config.server().HOST;
+const PORT = config.server().PORT;
 
 module.exports = {
   servers: [
     {
-      url: `http://localhost:${8080}`,
+      url: `http://${HOST}:${PORT}`,
       description: 'Local dev server',
     },
   ],

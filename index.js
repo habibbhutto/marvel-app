@@ -1,9 +1,11 @@
 const app = require('./app');
 const logger = require('./utils/logger');
-const port = 8080;
+const config = require('./config');
+const PORT = config.server().PORT;
+const HOST = config.server().HOST;
 
-const server = app.listen(port, () => {
-  console.log(`Marvel app listening at http://localhost:${port}`);
+const server = app.listen(PORT, () => {
+  console.log(`Marvel app listening at http://${HOST}:${PORT}`);
 });
 
 const exitHandler = () => {

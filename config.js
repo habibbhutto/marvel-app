@@ -2,6 +2,14 @@ class Config {
   required(param) {
     throw new Error(`${param} is required`);
   }
+
+  server() {
+    return {
+      PORT: process.env.PORT || 8080,
+      HOST: process.env.HOST || 'localhost',
+    };
+  }
+
   marvel() {
     return {
       API_URL: process.env.MARVEL_API_URL || this.required('MARVEL_API_URL'),
