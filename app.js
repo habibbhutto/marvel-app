@@ -5,6 +5,10 @@ const app = express();
 app.use(charactersRouter);
 app.use(docsRouter);
 
+app.get('/', (req, res) => {
+  res.redirect('/docs');
+});
+
 app.get('/live', (req, res) => {
   res.json({ status: 'Ok' });
   res.end();
